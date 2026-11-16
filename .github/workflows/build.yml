@@ -36,7 +36,9 @@ jobs:
         run: |
           echo '===== SOURCE FILES ====='
           find source -type f \( -name '*.java' -o -name 'fabric.mod.json' -o -name 'build.gradle' \) -print
-          while IFS= read -r f; do echo "===== $f ====="; cat "$f"; done < <(find source -type f \( -name '*.java' -o -name 'fabric.mod.json' -o -name 'build.gradle' \))
+          {
+            while IFS= read -r f; do echo "===== $f ====="; cat "$f"; done < <(find source -type f \( -name '*.java' -o -name 'fabric.mod.json' -o -name 'build.gradle' \))
+          } > source/diagnostics.txt
       - name: Make BlockDash commands visible to every player
         working-directory: source
         run: |
@@ -80,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Fiw-BlockDash-build-diagnostics
-          path: source/build.log
+          path: |\n            source/build.log\n            source/diagnostics.txt
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload JAR
