@@ -1,7 +1,7 @@
 name: Build Fiw BlockDash
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,69 +15,64 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.12.1'
-      - name: Inspect and extract source
+          gradle-version: "8.12.1"
+      - name: Extract source
         run: |
-          ls -l FiwBlockDash-source.zip
-          file FiwBlockDash-source.zip
-          if ! unzip -t FiwBlockDash-source.zip; then
-            echo "Intentando recuperar el ZIP..."
-            zip -FF FiwBlockDash-source.zip --out FiwBlockDash-recovered.zip || true
-            mv FiwBlockDash-recovered.zip FiwBlockDash-source.zip
-          fi
           unzip -t FiwBlockDash-source.zip
           unzip -q FiwBlockDash-source.zip -d source
           find source -maxdepth 5 -type f
-      - name: Diagnose source registration
+      - name: Capture source for diagnosis
         run: |
-          echo '===== SOURCE FILES ====='
-          find source -type f \( -name '*.java' -o -name 'fabric.mod.json' -o -name 'build.gradle' \) -print
-          {
-            while IFS= read -r f; do echo "===== $f ====="; cat "$f"; done < <(find source -type f \( -name '*.java' -o -name 'fabric.mod.json' -o -name 'build.gradle' \))
-          } > source/diagnostics.txt
-      - name: Make BlockDash commands visible to every player
+          python3 - <<'PY'
+          from pathlib import Path
+          files = list(Path("source").rglob("*.java")) + list(Path("source").rglob("fabric.mod.json")) + list(Path("source").rglob("build.gradle"))
+          with open("source/diagnostics.txt", "w") as out:
+              for p in files:
+                  out.write("\\n===== " + str(p) + " =====\\n")
+                  out.write(p.read_text(errors="replace"))
+          print("Captured", len(files), "source/config files")
+          PY
+      - name: Make commands visible to every player
         working-directory: source
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          candidates = list(Path('.').rglob('FiwBlockDash.java'))
+          candidates = list(Path(".").rglob("FiwBlockDash.java"))
           if len(candidates) != 1:
-              raise SystemExit(f'Esperaba un FiwBlockDash.java y encontré: {candidates}')
+              raise SystemExit(f"Expected one FiwBlockDash.java, found {candidates}")
           p = candidates[0]
           s = p.read_text()
-          permission = '.requires(class_2168::method_43737)'
+          permission = ".requires(class_2168::method_43737)"
           count = s.count(permission)
-          if count == 0:
-              raise SystemExit('No se encontraron restricciones OP; no se modifica el archivo.')
-          p.write_text(s.replace(permission, ''))
-          print(f'Retiradas {count} restricciones OP; los subcomandos serán visibles para todos.')
+          if count:
+              p.write_text(s.replace(permission, ""))
+          print("Removed OP restrictions:", count)
           PY
-      - name: Configure intermediary source mappings
+      - name: Configure intermediary mappings
         working-directory: source
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path('build.gradle')
+          import zipfile
+          p = Path("build.gradle")
           s = p.read_text()
           old = 'mappings "net.fabricmc:intermediary:${project.minecraft_version}:v2"'
           if old not in s:
-              raise SystemExit('No se encontró la configuración de mappings esperada')
+              raise SystemExit("Expected intermediary mappings declaration not found")
           p.write_text(s.replace(old, 'mappings files("intermediary-identity.jar")'))
-          import zipfile
-          with zipfile.ZipFile('intermediary-identity.jar', 'w') as z:
-              z.writestr('mappings/mappings.tiny', 'tiny\t2\t0\tintermediary\tnamed\n')
-          print(p.read_text())
+          with zipfile.ZipFile("intermediary-identity.jar", "w") as z:
+              z.writestr("mappings/mappings.tiny", "tiny\\t2\\t0\\tintermediary\\tnamed\\n")
           PY
       - name: Build mod
         working-directory: source
         run: |
           set -o pipefail
           gradle clean build --no-daemon --stacktrace 2>&1 | tee build.log
-      - name: Upload build diagnostics
+      - name: Upload diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
