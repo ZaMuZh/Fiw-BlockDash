@@ -48,7 +48,9 @@ jobs:
           PY
       - name: Build mod
         working-directory: source
-        run: gradle clean build --no-daemon
+        run: |
+          set -o pipefail
+          gradle clean build --no-daemon --stacktrace 2>&1 | tee build.log
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
