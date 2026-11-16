@@ -42,7 +42,7 @@ jobs:
           old = 'mappings "net.fabricmc:intermediary:${project.minecraft_version}:v2"'
           if old not in s:
               raise SystemExit('No se encontró la configuración de mappings esperada')
-          p.write_text(s.replace(old, 'mappings file("intermediary-identity.tiny")'))
+          p.write_text(s.replace(old, 'mappings files("intermediary-identity.tiny")'))
           Path('intermediary-identity.tiny').write_text('tiny\\t2\\t0\\tintermediary\\tnamed\\n')
           print(p.read_text())
           PY
