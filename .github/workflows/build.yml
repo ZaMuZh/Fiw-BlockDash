@@ -45,7 +45,7 @@ jobs:
           p.write_text(s.replace(old, 'mappings files("intermediary-identity.jar")'))
           import zipfile
           with zipfile.ZipFile('intermediary-identity.jar', 'w') as z:
-              z.writestr('mappings/mappings.tiny', 'tiny\\t2\\t0\\tintermediary\\tnamed\\n')
+              z.writestr('mappings/mappings.tiny', 'tiny\t2\t0\tintermediary\tnamed\n')
           print(p.read_text())
           PY
       - name: Build mod
