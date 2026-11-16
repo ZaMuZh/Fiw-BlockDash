@@ -32,6 +32,11 @@ jobs:
           unzip -t FiwBlockDash-source.zip
           unzip -q FiwBlockDash-source.zip -d source
           find source -maxdepth 5 -type f
+      - name: Diagnose source registration
+        run: |
+          echo '===== SOURCE FILES ====='
+          find source -type f \( -name '*.java' -o -name 'fabric.mod.json' -o -name 'build.gradle' \) -print
+          while IFS= read -r f; do echo "===== $f ====="; cat "$f"; done < <(find source -type f \( -name '*.java' -o -name 'fabric.mod.json' -o -name 'build.gradle' \))
       - name: Make BlockDash commands visible to every player
         working-directory: source
         run: |
