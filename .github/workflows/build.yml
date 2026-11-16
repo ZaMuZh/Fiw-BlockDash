@@ -32,6 +32,20 @@ jobs:
           unzip -t FiwBlockDash-source.zip
           unzip -q FiwBlockDash-source.zip -d source
           find source -maxdepth 5 -type f
+      - name: Configure intermediary source mappings
+        working-directory: source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('build.gradle')
+          s = p.read_text()
+          old = 'mappings "net.fabricmc:intermediary:${project.minecraft_version}:v2"'
+          if old not in s:
+              raise SystemExit('No se encontró la configuración de mappings esperada')
+          p.write_text(s.replace(old, 'mappings file("intermediary-identity.tiny")'))
+          Path('intermediary-identity.tiny').write_text('tiny\\t2\\t0\\tintermediary\\tnamed\\n')
+          print(p.read_text())
+          PY
       - name: Build mod
         working-directory: source
         run: gradle clean build --no-daemon
