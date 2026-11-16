@@ -51,6 +51,14 @@ jobs:
         run: |
           set -o pipefail
           gradle clean build --no-daemon --stacktrace 2>&1 | tee build.log
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fiw-BlockDash-build-diagnostics
+          path: source/build.log
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
