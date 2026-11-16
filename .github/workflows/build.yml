@@ -19,7 +19,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.10.2'
+          gradle-version: '8.12.1'
       - name: Inspect and extract source
         run: |
           ls -l FiwBlockDash-source.zip
@@ -31,7 +31,7 @@ jobs:
           fi
           unzip -t FiwBlockDash-source.zip
           unzip -q FiwBlockDash-source.zip -d source
-          find source -maxdepth 3 -type f
+          find source -maxdepth 5 -type f
       - name: Build mod
         working-directory: source
         run: gradle clean build --no-daemon
