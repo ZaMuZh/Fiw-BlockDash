@@ -30,13 +30,13 @@ jobs:
         run: unzip -q FiwBlockDash-source.zip -d source
 
       - name: Build mod
-        working-directory: source/FiwBlockDash-0.1.8
+        working-directory: source
         run: gradle clean build --no-daemon
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: Fiw-BlockDash-JAR
-          path: source/FiwBlockDash-0.1.8/build/libs/*.jar
+          path: source/build/libs/*.jar
           if-no-files-found: error
           retention-days: 30
