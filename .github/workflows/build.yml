@@ -24,6 +24,11 @@ jobs:
         run: |
           ls -l FiwBlockDash-source.zip
           file FiwBlockDash-source.zip
+          if ! unzip -t FiwBlockDash-source.zip; then
+            echo "Intentando recuperar el ZIP..."
+            zip -FF FiwBlockDash-source.zip --out FiwBlockDash-recovered.zip || true
+            mv FiwBlockDash-recovered.zip FiwBlockDash-source.zip
+          fi
           unzip -t FiwBlockDash-source.zip
           unzip -q FiwBlockDash-source.zip -d source
           find source -maxdepth 3 -type f
