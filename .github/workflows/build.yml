@@ -43,21 +43,32 @@ jobs:
                   out.write(p.read_text(errors="replace"))
           print("Captured", len(files), "source/config files")
           PY
-      - name: Make commands visible to every player
+      - name: Fix integrated-server loading and command permissions
         working-directory: source
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import json
           candidates = list(Path(".").rglob("FiwBlockDash.java"))
           if len(candidates) != 1:
               raise SystemExit(f"Expected one FiwBlockDash.java, found {candidates}")
-          p = candidates[0]
-          s = p.read_text()
+          java = candidates[0]
+          source = java.read_text()
           permission = ".requires(class_2168::method_43737)"
-          count = s.count(permission)
-          if count:
-              p.write_text(s.replace(permission, ""))
-          print("Removed OP restrictions:", count)
+          removed = source.count(permission)
+          source = source.replace(permission, "")
+          if "CommandRegistrationCallback.EVENT.register" not in source or 'method_9247("blockdash")' not in source:
+              raise SystemExit("BlockDash command registration was not found in source")
+          java.write_text(source)
+          mod_files = list(Path(".").rglob("fabric.mod.json"))
+          if len(mod_files) != 1:
+              raise SystemExit(f"Expected one fabric.mod.json, found {mod_files}")
+          mod_file = mod_files[0]
+          metadata = json.loads(mod_file.read_text())
+          metadata["environment"] = "*"
+          mod_file.write_text(json.dumps(metadata, indent=2) + "\\n")
+          print("Removed OP checks:", removed)
+          print("Set Fabric environment to '*' so the mod loads in singleplayer clients.")
           PY
       - name: Configure intermediary mappings
         working-directory: source
