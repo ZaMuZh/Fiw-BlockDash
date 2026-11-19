@@ -66,8 +66,8 @@ replacements = [
 replacements.extend([
     ("        if (!blocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));",
      "        if (!blocks.isEmpty() || !pendingPhysicalBlocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));"),
-    ("        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\\n        if (display == null) return;\\n        pendingPhysicalBlocks.add(new WallBlock(pos, state));",
-     "        pendingPhysicalBlocks.add(new WallBlock(pos, state));\\n        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\\n        if (display == null) return;"),
+    ("        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\n        if (display == null) return;\n        pendingPhysicalBlocks.add(new WallBlock(pos, state));",
+     "        pendingPhysicalBlocks.add(new WallBlock(pos, state));\n        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\n        if (display == null) return;"),
     ("""        class_243 fromStart = pos.method_1020(start);
         class_243 line = end.method_1020(start);
         double lengthSq = line.method_1027();
