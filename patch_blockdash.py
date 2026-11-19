@@ -62,6 +62,34 @@ replacements = [
      "            activePlatformBlocks.clear();\n            activeWallBlocks.clear();\n        }")
 ]
 
+
+replacements.extend([
+    ("        if (!blocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));",
+     "        if (!blocks.isEmpty() || !pendingPhysicalBlocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));"),
+    ("        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\\n        if (display == null) return;\\n        pendingPhysicalBlocks.add(new WallBlock(pos, state));",
+     "        pendingPhysicalBlocks.add(new WallBlock(pos, state));\\n        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\\n        if (display == null) return;"),
+    ("""        class_243 fromStart = pos.method_1020(start);
+        class_243 line = end.method_1020(start);
+        double lengthSq = line.method_1027();
+        double t = Math.max(0, Math.min(1, fromStart.method_1026(line) / lengthSq));
+        class_243 nearest = start.method_1019(line.method_1021(t));
+        return pos.method_1022(nearest) <= width / 2.0;""",
+     """        // La anchura se mide en horizontal: saltar no debe eliminar al jugador.
+        class_243 fromStart = new class_243(pos.field_1352 - start.field_1352, 0, pos.field_1350 - start.field_1350);
+        class_243 line = new class_243(end.field_1352 - start.field_1352, 0, end.field_1350 - start.field_1350);
+        double lengthSq = line.method_1027();
+        if (lengthSq < 1.0E-6) return false;
+        double length = Math.sqrt(lengthSq);
+        double t = fromStart.method_1026(line) / lengthSq;
+        double endMargin = 4.0 / length;
+        if (t < -endMargin || t > 1.0 + endMargin) return false;
+        double nearestX = start.field_1352 + line.field_1352 * t;
+        double nearestZ = start.field_1350 + line.field_1350 * t;
+        double dx = pos.field_1352 - nearestX;
+        double dz = pos.field_1350 - nearestZ;
+        return dx * dx + dz * dz <= Math.pow(width / 2.0 + 1.0, 2);""")
+])
+
 for old, new in replacements:
     count = s.count(old)
     if count != 1:
