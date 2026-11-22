@@ -96,5 +96,20 @@ for old, new in replacements:
         raise SystemExit(f"Expected exactly one match ({count}): {old[:90]!r}")
     s = s.replace(old, new)
 
+# A display entity may fail to spawn. Physical blocks must still be kept, but
+# hazards can only reference an entity that was actually appended to "blocks".
+hazard_old = """            addDisplay(blocks, pos, primary);
+            hazards.add(blocks.get(blocks.size() - 1));"""
+hazard_new = """            int previousSize = blocks.size();
+            addDisplay(blocks, pos, primary);
+            if (blocks.size() > previousSize) {
+                hazards.add(blocks.get(blocks.size() - 1));
+            }"""
+if hazard_old in s:
+    s = s.replace(hazard_old, hazard_new)
+elif hazard_new not in s:
+    # Fail the build instead of silently shipping an unpatched source layout.
+    raise SystemExit("Could not locate the wall hazard registration block in DashArena.java")
+
 p.write_text(s)
-print("Added temporary physical wall blocks that move with each wall and restore original terrain.")
+print("Added temporary physical wall blocks, safe display-entity fallback, and guarded hazard registration.")
