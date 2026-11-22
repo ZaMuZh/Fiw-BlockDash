@@ -99,8 +99,8 @@ for old, new in replacements:
 # A display entity may fail to spawn. Keep physical blocks regardless, but
 # only register a hazard when an entity was actually appended to "blocks".
 import re
-pattern = r"(?m)^(\\s*)addDisplay\\(blocks,\\s*pos,\\s*primary\\);\\s*\\n\\1hazards\\.add\\(blocks\\.get\\(blocks\\.size\\(\\)\\s*-\\s*1\\)\\);"
-replacement = r"\\1int previousSize = blocks.size();\\n\\1addDisplay(blocks, pos, primary);\\n\\1if (blocks.size() > previousSize) {\\n\\1    hazards.add(blocks.get(blocks.size() - 1));\\n\\1}"
+pattern = r"(?m)^(\s*)addDisplay\(blocks,\s*pos,\s*primary\);\s*\n\1hazards\.add\(blocks\.get\(blocks\.size\(\)\s*-\s*1\)\);"
+replacement = r"\1int previousSize = blocks.size();\n\1addDisplay(blocks, pos, primary);\n\1if (blocks.size() > previousSize) {\n\1    hazards.add(blocks.get(blocks.size() - 1));\n\1}"
 s, changed = re.subn(pattern, replacement, s)
 if changed != 1 and "previousSize = blocks.size()" not in s:
     raise SystemExit(f"Expected one wall hazard registration, patched {changed}")
