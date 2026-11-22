@@ -96,20 +96,14 @@ for old, new in replacements:
         raise SystemExit(f"Expected exactly one match ({count}): {old[:90]!r}")
     s = s.replace(old, new)
 
-# A display entity may fail to spawn. Physical blocks must still be kept, but
-# hazards can only reference an entity that was actually appended to "blocks".
-hazard_old = """            addDisplay(blocks, pos, primary);
-            hazards.add(blocks.get(blocks.size() - 1));"""
-hazard_new = """            int previousSize = blocks.size();
-            addDisplay(blocks, pos, primary);
-            if (blocks.size() > previousSize) {
-                hazards.add(blocks.get(blocks.size() - 1));
-            }"""
-if hazard_old in s:
-    s = s.replace(hazard_old, hazard_new)
-elif hazard_new not in s:
-    # Fail the build instead of silently shipping an unpatched source layout.
-    raise SystemExit("Could not locate the wall hazard registration block in DashArena.java")
+# A display entity may fail to spawn. Keep physical blocks regardless, but
+# only register a hazard when an entity was actually appended to "blocks".
+import re
+pattern = r"(?m)^(\\s*)addDisplay\\(blocks,\\s*pos,\\s*primary\\);\\s*\\n\\1hazards\\.add\\(blocks\\.get\\(blocks\\.size\\(\\)\\s*-\\s*1\\)\\);"
+replacement = r"\\1int previousSize = blocks.size();\\n\\1addDisplay(blocks, pos, primary);\\n\\1if (blocks.size() > previousSize) {\\n\\1    hazards.add(blocks.get(blocks.size() - 1));\\n\\1}"
+s, changed = re.subn(pattern, replacement, s)
+if changed != 1 and "previousSize = blocks.size()" not in s:
+    raise SystemExit(f"Expected one wall hazard registration, patched {changed}")
 
 p.write_text(s)
 print("Added temporary physical wall blocks, safe display-entity fallback, and guarded hazard registration.")
