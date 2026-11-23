@@ -48,9 +48,11 @@ replacements = [
                 class_2338 pos = entry.getKey();
                 originalBlocks.putIfAbsent(pos, world.method_8320(pos));
                 class_2680 original = originalBlocks.get(pos);
-                if (original != null && original.method_26215()
-                    && !world.method_8320(pos).equals(entry.getValue())) {
-                    world.method_8652(pos, entry.getValue(), class_2248.field_31036);
+                // La pared es un obstáculo temporal: debe verse incluso si cruza
+                // bloques del carril. Guardamos el estado original y lo restauramos
+                // cuando la pared avanza o termina.
+                if (original != null && !world.method_8320(pos).equals(entry.getValue())) {
+                    world.method_8652(pos, entry.getValue(), class_2248.field_31022);
                 }
             }
             activeWallBlocks = next;
