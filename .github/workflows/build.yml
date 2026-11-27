@@ -49,6 +49,7 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import json
+          import re
           candidates = list(Path(".").rglob("FiwBlockDash.java"))
           if len(candidates) != 1:
               raise SystemExit(f"Expected one FiwBlockDash.java, found {candidates}")
@@ -66,7 +67,17 @@ jobs:
           mod_file = mod_files[0]
           metadata = json.loads(mod_file.read_text())
           metadata["environment"] = "*"
+          metadata["version"] = "0.2.0"
           mod_file.write_text(json.dumps(metadata, indent=2) + "\\n")
+          # Give this corrected build a distinct filename/version so an old 0.1.9
+          # jar cannot silently be mistaken for the new wall fix.
+          gradle_props = list(Path(".").rglob("gradle.properties"))
+          for props in gradle_props:
+              text = props.read_text()
+              text, count = re.subn(r"(?m)^mod_version=.*$", "mod_version=0.2.0", text)
+              if count:
+                  props.write_text(text)
+          print("Build version set to 0.2.0")
           print("Removed OP checks:", removed)
           print("Set Fabric environment to '*' so the mod loads in singleplayer clients.")
           PY
