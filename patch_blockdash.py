@@ -107,6 +107,11 @@ s, changed = re.subn(pattern, replacement, s)
 if changed != 1 and "previousSize = blocks.size()" not in s:
     raise SystemExit(f"Expected one wall hazard registration, patched {changed}")
 
-\n# Use the documented update flag 3 (NOTIFY_NEIGHBORS | NOTIFY_LISTENERS)\n# for temporary wall blocks and their restoration, ensuring client chunk updates.\ns = s.replace("world.method_8652(old, original, class_2248.field_31036)", "world.method_8652(old, original, 3)")\ns = s.replace("world.method_8652(pos, original, class_2248.field_31036)", "world.method_8652(pos, original, 3)")\ns = s.replace("world.method_8652(pos, entry.getValue(), class_2248.field_31022)", "world.method_8652(pos, entry.getValue(), 3)")\n
+\n# Use the documented update flag 3 (NOTIFY_NEIGHBORS | NOTIFY_LISTENERS)
+# for temporary wall blocks and their restoration, ensuring client chunk updates.
+s = s.replace("world.method_8652(old, original, class_2248.field_31036)", "world.method_8652(old, original, 3)")
+s = s.replace("world.method_8652(pos, original, class_2248.field_31036)", "world.method_8652(pos, original, 3)")
+s = s.replace("world.method_8652(pos, entry.getValue(), class_2248.field_31022)", "world.method_8652(pos, entry.getValue(), 3)")
+
 p.write_text(s)
 print("Added temporary physical wall blocks, safe display-entity fallback, and guarded hazard registration.")
