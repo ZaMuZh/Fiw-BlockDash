@@ -66,7 +66,7 @@ replacements = [
 
 
 replacements.extend([
-    ("        if (!blocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));",
+    ("        running = true;\n",\n     "        running = true;\n        spawnWall(); // Show the first wall immediately, not after the interval.\n"),\n    ("        if (!blocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));",
      "        if (!blocks.isEmpty() || !pendingPhysicalBlocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));"),
     ("        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\n        if (display == null) return;\n        pendingPhysicalBlocks.add(new WallBlock(pos, state));",
      "        pendingPhysicalBlocks.add(new WallBlock(pos, state));\n        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\n        if (display == null) return;"),
@@ -107,5 +107,6 @@ s, changed = re.subn(pattern, replacement, s)
 if changed != 1 and "previousSize = blocks.size()" not in s:
     raise SystemExit(f"Expected one wall hazard registration, patched {changed}")
 
+\n# Use the documented update flag 3 (NOTIFY_NEIGHBORS | NOTIFY_LISTENERS)\n# for temporary wall blocks and their restoration, ensuring client chunk updates.\ns = s.replace("world.method_8652(old, original, class_2248.field_31036)", "world.method_8652(old, original, 3)")\ns = s.replace("world.method_8652(pos, original, class_2248.field_31036)", "world.method_8652(pos, original, 3)")\ns = s.replace("world.method_8652(pos, entry.getValue(), class_2248.field_31022)", "world.method_8652(pos, entry.getValue(), 3)")\n
 p.write_text(s)
 print("Added temporary physical wall blocks, safe display-entity fallback, and guarded hazard registration.")
