@@ -19,8 +19,10 @@ replacements = [
      "    private record PlatformTile(class_243 position, class_2680 state) {}\n    private record WallBlock(class_243 position, class_2680 state) {}"),
     ("        private final List<class_8115> hazards;\n        private final Map<class_2338, class_2680> originalBlocks = new HashMap<>();\n        private Set<class_2338> activePlatformBlocks = new HashSet<>();",
      "        private final List<class_8115> hazards;\n        private final List<WallBlock> physicalBlocks;\n        private final Map<class_2338, class_2680> originalBlocks = new HashMap<>();\n        private Set<class_2338> activePlatformBlocks = new HashSet<>();\n        private Set<class_2338> activeWallBlocks = new HashSet<>();"),
-    ("        Wall(List<class_8115> blocks, List<PlatformTile> platforms, List<class_8115> hazards,\n             class_243 position, class_3218 world) {",
-     "        Wall(List<class_8115> blocks, List<PlatformTile> platforms, List<class_8115> hazards,\n             List<WallBlock> physicalBlocks, class_243 position, class_3218 world) {"),
+    ("        Wall(List<class_8115> blocks, List<PlatformTile> platforms, List<class_8115> hazards,
+             class_243 position, class_3218 world) {",
+     "        Wall(List<class_8115> blocks, List<PlatformTile> platforms, List<class_8115> hazards,
+             List<WallBlock> physicalBlocks, class_243 position, class_3218 world) {"),
     ("            this.hazards = hazards;\n            this.position = position;",
      "            this.hazards = hazards;\n            this.physicalBlocks = physicalBlocks;\n            this.position = position;"),
     ("            updatePhysicalPlatforms();\n        }\n\n        void move(",
@@ -68,7 +70,9 @@ replacements = [
 replacements.extend([
     ("        travel = start.method_1020(end).method_1029();",
      "        travel = end.method_1020(start).method_1029();"),
-    ("        running = true;\n",\n     "        running = true;\n        spawnWall(); // Show the first wall immediately, not after the interval.\n"),\n    ("        if (!blocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));",
+    ("        running = true;\n",
+     "        running = true;\n        spawnWall(); // Show the first wall immediately, not after the interval.\n"),
+    ("        if (!blocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));",
      "        if (!blocks.isEmpty() || !pendingPhysicalBlocks.isEmpty()) walls.add(new Wall(blocks, platforms, hazards, List.copyOf(pendingPhysicalBlocks), end, world));"),
     ("        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\n        if (display == null) return;\n        pendingPhysicalBlocks.add(new WallBlock(pos, state));",
      "        pendingPhysicalBlocks.add(new WallBlock(pos, state));\n        class_8115 display = (class_8115) class_1299.field_42460.method_5883(world);\n        if (display == null) return;"),
@@ -109,7 +113,8 @@ s, changed = re.subn(pattern, replacement, s)
 if changed != 1 and "previousSize = blocks.size()" not in s:
     raise SystemExit(f"Expected one wall hazard registration, patched {changed}")
 
-\n# Use the documented update flag 3 (NOTIFY_NEIGHBORS | NOTIFY_LISTENERS)
+
+# Use the documented update flag 3 (NOTIFY_NEIGHBORS | NOTIFY_LISTENERS)
 # for temporary wall blocks and their restoration, ensuring client chunk updates.
 s = s.replace("world.method_8652(old, original, class_2248.field_31036)", "world.method_8652(old, original, 3)")
 s = s.replace("world.method_8652(pos, original, class_2248.field_31036)", "world.method_8652(pos, original, 3)")
